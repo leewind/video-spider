@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import json
+from ..items import SpiderXigua
 
 class IxiguaSpider(scrapy.Spider):
     name = 'ixigua'
@@ -25,6 +26,10 @@ class IxiguaSpider(scrapy.Spider):
 
     def parse(self, response):
         o = json.loads(response.text)
+
+        yield SpiderXigua(
+            data=o['data']
+        )
 
         behot_time = 0
         for item in o['data']:

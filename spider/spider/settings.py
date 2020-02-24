@@ -81,19 +81,19 @@ DEFAULT_REQUEST_HEADERS = {
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#    'spider.pipelines.SpiderPipeline': 300,
-# }
-
-FILES_STORE = '/Users/leewind/Projects/open/video-spider/video'
-FILES_URLS_FIELD = 'file_urls'   # 这里对应着item.py文件中的字段
-FILES_RESULT_FIELD = 'files'     # 同样对应item.py文件中的字段
-# 120 days of delay for files expiration
-FILES_EXPIRES = 120
-# 需要在ITEM_PIPELINES中启用该中间件
 ITEM_PIPELINES = {
-    'scrapy.pipelines.files.FilesPipeline': 1,
+   'spider.pipelines.SpiderPipeline': 300,
 }
+
+# FILES_STORE = '/Users/leewind/Projects/open/video-spider/video'
+# FILES_URLS_FIELD = 'file_urls'   # 这里对应着item.py文件中的字段
+# FILES_RESULT_FIELD = 'files'     # 同样对应item.py文件中的字段
+# # 120 days of delay for files expiration
+# FILES_EXPIRES = 120
+# # 需要在ITEM_PIPELINES中启用该中间件
+# ITEM_PIPELINES = {
+#     'scrapy.pipelines.files.FilesPipeline': 1,
+# }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
