@@ -28,7 +28,9 @@ class SpiderPipeline(object):
 
     def parse_content(self, item):
         for item in item['data']:
-            self.db['video_info'].insert_one(item)
+            one = self.db['video_info'].find_one({'item_id': item['item_id']})
+            if one is None:
+                self.db['video_info'].insert_one(item)
 
     def process_item(self, item, spider):
         data = []
