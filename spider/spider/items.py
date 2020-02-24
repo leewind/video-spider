@@ -7,6 +7,9 @@
 
 import scrapy
 
+class SpiderXiguaVideo(scrapy.Item):
+    file_urls = scrapy.Field()
+    files = scrapy.Field()
 
 class SpiderXigua(scrapy.Item):
     # define the fields for your item here like:
