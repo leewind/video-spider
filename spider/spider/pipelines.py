@@ -5,9 +5,10 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
-from .items import SpiderXigua
+from .items import SpiderXigua,SpiderXiguaPSeries
 import urllib
 import pymongo
+import pandas as pd
 
 class SpiderPipeline(object):
 
@@ -27,17 +28,53 @@ class SpiderPipeline(object):
         self.connect()
 
     def parse_content(self, item):
+        print(item)
+
+        if isinstance(item, SpiderXigua):
+            for i in item['data']:
+                one = self.db['video_info'].find_one({'item_id': i['item_id']})
+                if one is None:
+                    self.db['video_info'].insert_one(i)
+
+        elif isinstance(item, SpiderXiguaPSeries):
+            series_id = item['data']['id']
+            for i in item['data']['videoList']:
+                one = self.db['video_info'].find_one({
+                    'item_id': i['item_id'],
+                    'series_id': series_id
+                })
+                if one is None:
+                    i['series_id'] = series_id
+                    i['is_uploaded'] = 0
+
+                    self.db['video_info'].insert_one(i)
+
+
+
+    def process_item(self, item, spider):
+        self.parse_content(item)
+        return item
+
+    def close_spider(self, spider):
+        self.client.close()
+
+class PandasSpiderPipeline(object):
+
+    result = []
+
+    def parse_content(self, item):
         for item in item['data']:
             one = self.db['video_info'].find_one({'item_id': item['item_id']})
             if one is None:
                 self.db['video_info'].insert_one(item)
 
     def process_item(self, item, spider):
-        data = []
         if isinstance(item, SpiderXigua):
-            data = self.parse_content(item)
+            self.result.append(item)
 
-        return data
+        return item
 
     def close_spider(self, spider):
-        self.client.close()
+        # df = pd.DataFrame(self.result)
+        # df.to_csv('ixigua.csv', index=False)
+        print(self.result)
