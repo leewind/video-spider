@@ -10,9 +10,17 @@ import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 
+import socks
+import socket
+
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
 def main():
+
+    socks.setdefaultproxy(socks.PROXY_TYPE_HTTP, "127.0.0.1", 59201)
+    socket.socket = socks.socksocket
+
+
     # Disable OAuthlib's HTTPS verification when running locally.
     # *DO NOT* leave this option enabled in production.
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"

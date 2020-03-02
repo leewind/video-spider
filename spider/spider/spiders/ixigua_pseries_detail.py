@@ -6,6 +6,7 @@ from base64 import b64decode
 import requests
 from lxml import etree
 import json
+import os
 
 class IxiguaPseriesDetailSpider(scrapy.Spider):
     name = 'ixigua_pseries_detail'
@@ -38,6 +39,11 @@ class IxiguaPseriesDetailSpider(scrapy.Spider):
 
         for i in data:
             print(i)
+
+            filename = '/Users/leewind/Projects/open/video-spider/video/%s.mp4' % (i['video_id'])
+            if os.path.exists(filename):
+                continue
+
             path = '/pseries/%s_%s' % (i['series_id'], i['item_id'])
 
             headers = {
@@ -81,11 +87,13 @@ class IxiguaPseriesDetailSpider(scrapy.Spider):
                 video_id = o['Projection']['video']['videoResource']['normal']['video_id']
                 video_url = b64decode(o['Projection']['video']['videoResource']['normal']['video_list']['video_3']['main_url']).decode()
 
-                self.downloadfile('/Users/leewind/Projects/open/video-spider/video/%s.mp4' % (video_id), video_url)
+                filename = '/Users/leewind/Projects/open/video-spider/video/%s.mp4' % (video_id)
+                if not os.path.exists(filename):
+                    self.downloadfile(filename, video_url)
 
 
     def downloadfile(self, filepath, url):
-        r=requests.get(url)
+        r=requests.get(url, stream=True)
         print("****Connected****")
         f=open(filepath,'wb');
         print("Donloading.....")

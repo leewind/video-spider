@@ -7,6 +7,10 @@ import random
 import sys
 import time
 
+import google_auth_oauthlib.flow
+import googleapiclient.discovery
+import googleapiclient.errors
+
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
@@ -72,18 +76,25 @@ VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
 def get_authenticated_service(args):
-  flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
-    scope=YOUTUBE_UPLOAD_SCOPE,
-    message=MISSING_CLIENT_SECRETS_MESSAGE)
+  # flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
+  #   scope=YOUTUBE_UPLOAD_SCOPE,
+  #   message=MISSING_CLIENT_SECRETS_MESSAGE)
 
-  storage = Storage("%s-oauth2.json" % sys.argv[0])
-  credentials = storage.get()
+  # storage = Storage("%s-oauth2.json" % sys.argv[0])
+  # credentials = storage.get()
 
-  if credentials is None or credentials.invalid:
-    credentials = run_flow(flow, storage, args)
+  # if credentials is None or credentials.invalid:
+  #   credentials = run_flow(flow, storage, args)
 
-  return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-    http=credentials.authorize(httplib2.Http()))
+  flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
+        CLIENT_SECRETS_FILE, YOUTUBE_UPLOAD_SCOPE)
+  credentials = flow.run_console()
+
+  # print(credentials)
+  # return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
+  #   http=credentials.authorize(httplib2.Http()))
+  return googleapiclient.discovery.build(
+        YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, credentials=credentials)
 
 def initialize_upload(youtube, options):
   tags = None
@@ -169,7 +180,16 @@ if __name__ == '__main__':
     default="")
   argparser.add_argument("--privacyStatus", choices=VALID_PRIVACY_STATUSES,
     default=VALID_PRIVACY_STATUSES[0], help="Video privacy status.")
-  args = argparser.parse_args()
+
+  # print(sys.argv[1:])
+  # args = argparser.parse_args()
+
+  params = params = [
+    '--file=//Users/leewind/Downloads/v020047e0000bpds70nijqt1h4rqtnlg.mp4',
+    '--title=test',
+    '--description=test'
+  ]
+  args = argparser.parse_args(args=params)
 
   if not os.path.exists(args.file):
     exit("Please specify a valid file using the --file= parameter.")
